@@ -4,6 +4,7 @@ import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+import linkedin_data
 
 # Download necessary resources for NLTK if not already downloaded
 nltk.download('punkt')
@@ -29,6 +30,7 @@ def preprocess_text(text):
     
     return tokens
 
+# Function to predict sentiment and provide interpretation
 # Function to predict sentiment and provide interpretation
 def predict_sentiment(text, model, vectorizer):
     # Preprocess the text
@@ -76,31 +78,47 @@ def predict_sentiment(text, model, vectorizer):
 nb_model = joblib.load("nb_model.pkl")
 vectorizer = joblib.load("vectorizer.pkl")
 
-# Streamlit UI
-st.header("News Article Sentiment Analysis",divider='rainbow')
+# Sidebar for navigation
+st.sidebar.title("Navigation")
+page = st.sidebar.selectbox("Choose a page", ["Sentiment Analysis Of News", "LinkedIn Data Server"])
 
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+if page == "Sentiment Analysis Of News":
+    # Streamlit UI
+    st.header("News Article Sentiment Analysis", divider='rainbow')
 
-user_text = st.text_area("Enter your news here:")
+    user_text = st.text_area("Enter your news here:")
 
-if st.button("Predict"):
-    top_words, sentiment, probabilities = predict_sentiment(user_text, nb_model, vectorizer)
-    
+    if st.button("Predict"):
+        top_words, sentiment, probabilities = predict_sentiment(user_text, nb_model, vectorizer)
+        
+        st.write("Sentiment & Probability:")
 
-    st.write("Sentiment & Probability:")
+        if sentiment == "positive":
+            st.success(f"The sentiment of News is: {sentiment.capitalize()}")
+            st.info(f"Positive: {probabilities[1]}")
+        elif sentiment == "negative":
+            st.error(f"The sentiment of News is: {sentiment.capitalize()}")
+            st.info(f"Negative: {probabilities[0]}")
 
-    if sentiment == "positive":
-        st.success(f"The sentiment of News is:  {sentiment.capitalize()}")
-        st.info(f"Positive: {probabilities[1]}")
+        st.subheader("We are giving you this sentiment of News because of this sentence:")
 
-    elif sentiment == "negative":
-        st.error(f"The sentiment of News is: {sentiment.capitalize()}")
-        st.info(f"Negative: {probabilities[0]}")
+        lst = []
+        for i in user_text.split():
+            if i in top_words:
+                lst.append(i)
+        sentence = ' '.join(lst)
+        st.write(sentence)
 
-    st.subheader("We are giving you this sentiment of News because of this sentence:")
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
+elif page == "LinkedIn Data Server":
+    st.header("LinkedIn Data Server")
+    # st.header("News Article Sentiment Analysis", divider='rainbow')
 
-    lst = []
-    for i in user_text.split() :
-        if i in top_words:
-            lst.append(i)
-    sentence = ' '.join(lst)
-    st.write(sentence)
+    company_name = st.text_input("Enter company name")
+
+    if st.button("Get Details"):
+
+        details = linkedin_data.scrape_company_data(company_name)
+        st.write(details)
+
