@@ -34,5 +34,30 @@ def scrape_company_post(company_name):
 
     response = requests.post(url, json=payload, headers=headers)
 
-    print(response.json())
+    # print(response.json())
     return (response.json())
+
+
+def get_clean_company_post_data(company_name):
+
+    data = scrape_company_post(company_name)
+
+    if data['success'] == True:
+
+        final_list = []
+        # count = 1
+        for i in data['response']:
+
+            final_dict = dict()
+            # final_dict['post_count'] = count
+            final_dict['postText'] = i.get('postText')
+            final_dict['postLink'] = i.get('postLink')
+            final_dict['socialCount'] = i.get('socialCount')
+            final_dict['postedAt'] = i.get('postedAt')
+            final_dict['postedAgo'] = i.get('postedAgo')
+            final_list.append(final_dict)
+            # count += 1
+
+        return final_list
+    else:
+        return data

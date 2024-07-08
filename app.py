@@ -119,6 +119,6 @@ elif page == "LinkedIn Data Server":
 
     if st.button("Get Details"):
 
-        details = linkedin_data.scrape_company_post(company_name)
+        details = linkedin_data.get_clean_company_post_data(company_name)
         st.write(details)
 
