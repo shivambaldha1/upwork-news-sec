@@ -1,10 +1,12 @@
 import streamlit as st
+import pandas as pd
 import joblib, nltk
 import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import linkedin_data
+import matplotlib.pyplot as plt
 
 # Download necessary resources for NLTK if not already downloaded
 nltk.download('punkt')
@@ -82,6 +84,26 @@ vectorizer = joblib.load("vectorizer.pkl")
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Choose a page", ["Sentiment Analysis Of News", "LinkedIn Data Server"])
 
+#------------------------- Plot Support --------------------
+def plot_histogram(df):
+    st.title("Engagement Distribution")
+    fig, ax = plt.subplots()
+    df[['numLikes', 'numComments', 'numShares']].plot(kind='hist', alpha=0.5, bins=20, ax=ax)
+    ax.set_xlabel('Number of Engagements')
+    ax.set_title('Engagement Distribution')
+    st.pyplot(fig)
+
+# Function to plot pie chart
+def plot_pie_chart(df):
+    st.title("Engagement Types")
+    engagement_counts = df[['numLikes', 'numComments', 'numShares']].sum()
+    fig, ax = plt.subplots()
+    ax.pie(engagement_counts, labels=engagement_counts.index, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')
+    ax.set_title('Engagement Types Distribution')
+    st.pyplot(fig)
+
+
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 if page == "Sentiment Analysis Of News":
     # Streamlit UI
@@ -120,5 +142,18 @@ elif page == "LinkedIn Data Server":
     if st.button("Get Details"):
 
         details = linkedin_data.get_clean_company_post_data(company_name)
+
+        # Convert data to DataFrame
+        df = pd.DataFrame(details)
+
+        # Convert 'postedAt' to datetime
+        df['postedAt'] = pd.to_datetime(df['postedAt'])
+
+        # Extract date and time
+        df['date'] = df['postedAt'].dt.date
+        df['time'] = df['postedAt'].dt.time
         st.write(details)
+        plot_histogram(df)
+        plot_pie_chart(df)
+
 

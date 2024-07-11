@@ -26,11 +26,12 @@ def scrape_company_post(company_name):
         "comments": 10,
         "reposts": 10
     }
-    headers = {
-        "x-rapidapi-key": "fc4ebbb663mshf2e046498795d65p12cc0cjsnc16f16184e29",
-        "x-rapidapi-host": "linkedin-data-scraper.p.rapidapi.com",
-        "Content-Type": "application/json"
-    }
+    headers ={
+	"x-rapidapi-key": "c217a5f255msh4aee79f9c0d7b24p122631jsnf1d1b42a200c",
+	"x-rapidapi-host": "linkedin-data-scraper.p.rapidapi.com",
+	"Content-Type": "application/json"
+                }
+
 
     response = requests.post(url, json=payload, headers=headers)
 
@@ -52,7 +53,9 @@ def get_clean_company_post_data(company_name):
             # final_dict['post_count'] = count
             final_dict['postText'] = i.get('postText')
             final_dict['postLink'] = i.get('postLink')
-            final_dict['socialCount'] = i.get('socialCount')
+            final_dict['numLikes'] = i.get('socialCount')['numLikes']
+            final_dict['numComments'] = i.get('socialCount')['numComments']
+            final_dict['numShares'] = i.get('socialCount')['numShares']
             final_dict['postedAt'] = i.get('postedAt')
             final_dict['postedAgo'] = i.get('postedAgo')
             final_list.append(final_dict)
